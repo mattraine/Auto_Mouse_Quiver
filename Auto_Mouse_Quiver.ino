@@ -35,7 +35,7 @@ void setup() {
 
 }
 
-unsigned long lastLoopTime=now();
+unsigned long lastLoopTime=millis();
 void loop() {
   byte data =0;
   if(Serial.available()>0)
@@ -49,7 +49,7 @@ void loop() {
     Serial.write(data);
   }
 
-  if((now()-lastLoopTime)>responseDelay){
+  if((millis()-lastLoopTime)>responseDelay){
     
     // calculate the movement distance based on the button states:
     int leftState = random(-1,2);
@@ -73,6 +73,6 @@ void loop() {
     
     //  // a delay so the mouse doesn't move too fast:
     //  delay(responseDelay);
-    lastLoopTime = now();
+    lastLoopTime = millis();
   }
 }
