@@ -30,30 +30,49 @@ int responseDelay = 10;     // response delay of the mouse, in ms
 void setup() {
   // initialize mouse control:
   Mouse.begin();
+  Serial.begin(115200);
+  Serial1.begin(115200);
+
 }
 
+unsigned long lastLoopTime=now();
 void loop() {
-
-  // calculate the movement distance based on the button states:
-  int leftState = random(-1,2);
-  int rightState = random(-1,2); 
-  int upState = random(-1,2);
-  int downState = random(-1,2);
-  int  xDistance = (leftState - rightState) * range;
-  int xDist_inv = (-leftState + rightState) * range;
-  int  yDistance = (upState - downState) * range;
-  int yDist_inv = (-upState + downState) * range;
-
-  // Only quiver when caps lock is on. 
-  if (keyboard_leds & (1<<USB_LED_CAPS_LOCK)){
-    // if X or Y is non-zero, move:
-    if ((xDistance != 0) || (yDistance != 0)) {
-      Mouse.move(xDistance, yDistance, 0);
-      delay(responseDelay);
-      Mouse.move(xDist_inv, yDist_inv, 0);
-    }
+  byte data =0;
+  if(Serial.available()>0)
+  {
+    data = Serial.read();
+    Serial1.write(data);
   }
+  if(Serial1.available()>0)
+  {
+    data = Serial1.read();
+    Serial.write(data);
+  }
+
+  if((now()-lastLoopTime)>responseDelay){
+    
+    // calculate the movement distance based on the button states:
+    int leftState = random(-1,2);
+    int rightState = random(-1,2); 
+    int upState = random(-1,2);
+    int downState = random(-1,2);
+    int  xDistance = (leftState - rightState) * range;
+    int xDist_inv = (-leftState + rightState) * range;
+    int  yDistance = (upState - downState) * range;
+    int yDist_inv = (-upState + downState) * range;
   
-  // a delay so the mouse doesn't move too fast:
-  delay(responseDelay);
+    // Only quiver when caps lock is on. 
+    if (keyboard_leds & (1<<USB_LED_CAPS_LOCK)){
+      // if X or Y is non-zero, move:
+      if ((xDistance != 0) || (yDistance != 0)) {
+        Mouse.move(xDistance, yDistance, 0);
+        delay(responseDelay);
+        Mouse.move(xDist_inv, yDist_inv, 0);
+      }
+    }
+    
+    //  // a delay so the mouse doesn't move too fast:
+    //  delay(responseDelay);
+    lastLoopTime = now();
+  }
 }
